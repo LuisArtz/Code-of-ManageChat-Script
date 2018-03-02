@@ -1,0 +1,325 @@
+#                                                                                                               #
+#                                                                                                               #
+#                                                  ManageChat                                                   #
+#                                                 By LuisArtz                                                   #
+#                                                                                                               #
+#                                                                                                               #
+
+
+on load:
+    message "&c" to console
+    message "&c--------------------" to console
+    message "&2Managechat Premium By LuisArtz 3.0 enabled" to console
+    message "&c--------------------" to console
+    message "&c" to console
+
+#                                                                                                               #
+#                                           PLUGIN HELP                                                         #
+#                                                                                                               #
+
+command /managechat [<text>]:
+    permission: ManageChat.Help
+    aliases: /managechat help, /mc, /mchat
+    trigger:
+        if arg-1 is not set:
+            send "&3&l&m----------------------&7&l&m[&b&lManage&9&lChat&7&l&m]&3&l&m----------------------"
+            send "&3/chat clear global &b- &7Clear the global chat"
+            send "&3/chat clear personal &b- &7Clear the personal chat"
+            send "&3/sc <message> &b- &7Send a message on the staffchat"
+            send "&3/sc &b- &7Enable or disable staffchat automatic"
+            send "&3/mmute <player> <time> <reason> &b- &7Mute a player temporaly"
+            send "&3/yt <player> &b- &7Send the yt requeriments"
+            send "&3/yt &b- &7See the yt requeriments"
+            send "&3/fake join <player> &b- &7Generate a fake join message"
+            send "&3/fake leave <player> &b- &7Generate a fake leave message"
+            send "&3/managechat permissions &b- &7See the permissions of the script"
+            send "&3&l&m---------------------------------------------------------"
+        if arg-1 is "permissions":
+            send "&3&l&m----------------------&7&l&m[&b&lManage&9&lChat&7&l&m]&3&l&m----------------------"
+            send "&3managechat.chatclear.global"
+            send "&3managechat.chatclear.personal"
+            send "&3managechat.staffchat"
+            send "&3managechat.vipchat"
+            send "&3managechat.mute"
+            send "&3managechat.sendyt"
+            send "&3managechat.help"
+            send "&3managechat.fake.player"
+            send "&3&l&m---------------------------------------------------------"
+#                                                                                                               #
+#                                           STAFF CHAT                                                          #
+#                                                                                                               #
+
+command /sc [<text>]:
+    executable by: players
+    permission: ManageChat.StaffChat
+    trigger:
+        if arg-1 is not set:
+            if player has permissions "ManageChat.StaffChat":
+                if {staffchat.%player%} is not set:
+                    set {staffchat.%player%} to true
+                    message "&3&lSTAFF &8&l» &aEnabled." to player
+                else:
+                    delete {staffchat.%player%}
+                    message "&3&lSTAFF &8&l» &cDisabled." to player
+                stop trigger
+        if player does not have the permission "ManageChat.StaffChat":
+            stop
+        send message "&3&lSTAFF &8&l» &b%player%: &3%arg 1%" to console
+        loop all players:
+            loop-player has the permission "ManageChat.StaffChat":
+                play raw sound "mob.endermen.portal" at player with pitch 1 volume 3
+                send "&3&lSTAFF &8&l» &b%player%: &3%arg 1%" to loop-player
+			
+#Commands -End
+
+#Events -Start
+
+on chat:
+    if {staffchat.%player%} is true:
+        cancel event
+        loop all players:
+            if loop-player has the permission "ManageChat.StaffChat":
+                send "&3&lSTAFF &8&l» &b%player%: &3%message%" to loop-players
+                send "&3&lSTAFF &8&l» &b%player%: &3%message%" to console
+                play raw sound "mob.endermen.portal" at player with pitch 1 volume 3
+            else:
+                stop
+#                                                                                                               #
+#                                           STAFF CHAT                                                          #
+#                                                                                                               #
+
+command /vc [<text>]:
+    executable by: players
+    permission: ManageChat.VipChat
+    trigger:
+        if player does not have the permission "ManageChat.VipChat":
+            send "&c"
+            send "&cYou don't have permission for this command"
+            send "&d"
+            stop trigger
+        if arg-1 is not set:
+            if player has permissions "ManageChat.VipChat":
+                if {vipchat.%player%} is not set:
+                    set {vipchat.%player%} to true
+                    message "&6&lVIP &8&l» &aEnabled." to player
+                else:
+                    delete {vipchat.%player%}
+                    message "&6&lVIP &8&l» &cDisabled." to player
+                stop trigger
+        send message "&6&lVIP &8&l» &e%player%: &6%arg 1%" to console
+        loop all players:
+            loop-player has the permission "ManageChat.VipChat":
+                play raw sound "mob.endermen.portal" at player with pitch 1 volume 3
+                send "&6&lVIP &8&l» &e%player%: &6%arg 1%" to loop-player
+			
+#Commands -End
+
+#Events -Start
+
+on chat:
+    if {vipchat.%player%} is true:
+        cancel event
+        loop all players:
+            if loop-player does not have the permission "ManageChat.VipChat":
+                send "&cYou don't have permissions for this command"
+                stop trigger
+            if loop-player has the permission "ManageChat.VipChat":
+                send "&6&lVIP &8&l» &e%player%: &6%message%" to loop-players
+                send "&6&lVIP &8&l» &e%player%: &6%message%" to console
+                play raw sound "mob.endermen.portal" at player with pitch 1 volume 3
+#                                                                                                               #
+#                                           CHAT CLEAR                                                          #
+#                                                                                                               #
+
+command /chat [<text>] [<text>]:
+    usage: &cUsa /chat clear <global or personal>
+    executable by: players
+    permission message: <red>You do not have permission for this
+    trigger:
+        if arg-1 is not set:
+			
+            send "&3&l&m-----------------"
+            send "&b/chat clear global"
+            send "&b/chat clear personal"
+            send "&3&l&m-----------------"
+            stop trigger
+		if arg-1  is "clear":
+			if arg-2 is not set:
+				if player has the permission "managechat.chatclear.global":
+					loop 200 times:
+						send "&c" to players
+					send message "&cThe chat has been cleared by %player%" to players
+						stop trigger
+			else if arg-2 is "global":
+				if player has the permission "managechat.chatclear.global":
+					loop 200 times:
+						send "&c" to players
+					send message "&cThe chat has been cleared by %player%" to players
+					stop trigger
+			else if arg-2 is "personal":
+				if player has the permission "managechat.chatclear.personal":
+					loop 200 times:
+						send "&c" to player
+					send "&cThe chat has been cleaned correctly"
+					send message "&cThe player %player% has cleared his personal chat" to console
+					stop trigger
+		else if arg-2 is "mute":
+			if player has the permission "managechat.mute":
+				if {mutechat} is true:
+					set {mutechat} to false
+					send "&cThe chat has been unmuted"
+				else if {mutechat} is false:
+					set {mutechat} to true
+					send "&cThe chat has been muted"
+					stop trigger
+on chat:
+	if {mutechat} is true:
+		if player does not have the permission "mutechat.bypass":
+			cancel event
+			send "&cThe chat is muted"
+#                                                                                                               #
+#                                           DISABLE WORDS                                                       #
+#                                                                                                               #
+
+on chat:
+#You can change or add words adding.  or "word"#
+#The word added can been activen in other words#
+    if player does not have the permission "managechat.disablewords.bypass":
+        if message contains "nubi" or "noob" or "gay" or "ezeta" or "izi" or "lmao" or "looser":
+            cancel event
+            send "&b&m------&7&m]----&3&lDisable&9&lWords&7&m----[&b&m------" to players
+            send "&3%player% &bhas been muted" to players
+            send "&3Time:&b 3m" to players
+            send "&3Reason: &bWatch your mouth" to players
+            send "&3&l.DisableWords" to players
+            send "&b&m------------------------------------" to players
+        if message contains "nubi" or "noob" or "gay" or "ezeta" or "izi" or "lmao" or "looser":
+            execute command "/emute %player% 3m Cuida tu lenguaje"
+#You can change the command#
+#Example: "/unmute" "/kick" "/ban" "tempban"#
+
+on chat:
+#You can change or add words adding.  or "word"#
+#The word added can been activen in other words#
+    if player does not have the permission "managechat.disablewords.bypass":
+        if message contains "pendejo" or "pndj" or "pndej" or "pndjo" or "pndjete" or "puto" or "mierda" or "puta" or "pvta" or "pvto" or "pito" or "fuck" or "fucker" or "fucking":
+            cancel event
+            send "&b&m------&7&m]----&3&lDisable&9&lWords&7&m----[&b&m------" to players
+            send "&3%player% &bhas been muted" to players
+            send "&3Time:&b 10m" to players
+            send "&3Reason: &bWatch your mouth" to players
+            send "&3&l.DisableWords" to players
+            send "&b&m------------------------------------" to players
+        if message contains "pendejo" or "pndj" or "pndej" or "pndjo" or "pndjete" or "puto" or "mierda" or "puta" or "pvta" or "pvto" or "pito" or "fuck" or "fucker" or "fucking":
+            execute command "/emute %player% 10m Cuida tu lenguaje"
+#You can change the command#
+#Example: "/unmute" "/kick" "/ban" "tempban"#
+#                                                                                                               #
+#                                           MANAGE MUTE                                                         #
+#                                                                                                               #
+
+command /mmute [<player>] [<text>] [<text>]:
+    permission: managechat.mute
+    executable by: console and players
+    permission message: <red>You do not have permission for this
+    trigger:
+        if arg-1 is not set:
+            send "&3&l&m-----------------"
+            send "&b/mmute (player) (time) (reason)"
+            send "&3&l&m-----------------"
+            stop trigger
+        if arg-2 is not set:
+            send "&3&l&m-----------------"
+            send "&b/mmute (player) (time) (reason)"
+            send "&3&l&m-----------------"
+            stop trigger
+        if arg-3 is not set:
+            send "&3&l&m-----------------"
+            send "&b/mmute (player) (time) (reason)"
+            send "&3&l&m-----------------"
+            stop trigger
+        if arg-3 is set:
+            send "&b&m------&7&m]----&3&lManage&9&lMute&7&m----[&b&m------" to players
+            send "&3%arg 1% &bhas been muted" to players
+            send "&3Muted by: &b%player%" to players
+            send "&3Reason: &b%arg 3%" to players
+            send "&3Time: &b%arg 2%" to players
+            send "&b&m------------------------------------" to players
+            execute command "emute %arg 1%  %arg 2%"
+#                                                                                                               #
+#                                        FAKE JOIN & LEAVE                                                      #
+#                                                                                                               #
+
+command /fake [<text>] [<text>]:
+    aliases: /f
+    permission: managechat.fake.player
+    executable by: players
+    permission message: <red>You do not have permission for this
+    trigger:
+        if arg-1 is not set:
+            send "&3&l&m-----------------"
+            send "&b/fake join (Jugador)"
+            send "&b/fake leave (Jugador)"
+            send "&3&l&m-----------------"
+            stop trigger
+        if arg-2 is not set:
+            send "&3&l&m-----------------"
+            send "&b/fake join (Jugador)"
+            send "&b/fake leave (Jugador)"
+            send "&3&l&m-----------------"
+            stop trigger
+        if the arg-1 is "join":
+            send message "&7[&a+&7] &7%arg 2%" to console
+            send "&7[&a+&7] &7%arg 2%" to players
+        if the arg-1 is "leave":
+            send message "&7[&c-&7] &7%arg 2%" to console
+            send "&7[&c-&7] &7%arg 2%" to players
+#                                                                                                               #
+#                                          YOUTUBE INFO                                                         #
+#                                                                                                               #
+
+command /youtube [<player>]:
+    aliases: /yt, /youtuber, /requirements
+    executable by: players
+    permission message: <red>You do not have permission for this
+    trigger:
+        if arg-1 is not set:
+            send "&c"
+            send "&2&lRequirements for &f&lY&4&lT"
+            send "&7Subs: &a500"
+            send "&7Video Minutes: &a10 Minutes"
+            send "&7Channel activity:&a 3 Videos per week"
+            send "&2&lRequirements for &4&lM&f&lY&4&lT"
+            send "&7Subs: &a300"
+            send "&7Video Minutes: &a7 Minutes"
+            send "&7Channel activity:&a 2 Videos per week"
+            send "&c"
+            stop trigger
+        send message "&cSuccessfully submitted requirements" to console
+        if arg-1 is set:
+            if player has permission "managechat.ytsend":
+                send "&c" to the arg-1
+                send "&2&lRequirements for &f&lY&4&lT" to the arg-1
+                send "&7Subs: &a500" to the arg-1
+                send "&7Video Minutes: &a10 Minutes" to the arg-1
+                send "&7Channel activity:&a 3 Videos per week" to the arg-1
+                send "&2&lRequirements for &4&lM&f&lY&4&lT" to the arg-1
+                send "&7Subs: &a300" to the arg-1
+                send "&7Video Minutes: &a7 Minutes" to the arg-1
+                send "&7Channel activity:&a 2 Videos per week" to the arg-1
+                send "&c" to the arg-1
+                send "&aThe YT requirements have been sent to %arg 1% &7(%player%)" to players
+#                                                                                                               #
+#                                           PL SECURE                                                           #
+#                                                                                                               #
+
+on command:
+    if command is "pl" or "plugin" or "pl c" or "bukkit:plugins":
+        if player does not have permission "managechat.plugins":
+            send "&fPlugins(): &aYou&f,&aDon't&f,&a&Havea&f,&aPermissions&f" to player
+            cancel event
+        else:
+            send "&cEstas biendo los plugins!" to player
+        loop all players:
+            if loop-player has permission "managechat.spypl":
+                send "&c%player% ha intentado ver los plugins" to loop-player
